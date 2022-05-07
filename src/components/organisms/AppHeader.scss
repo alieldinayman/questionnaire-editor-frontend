@@ -1,0 +1,16 @@
+.App-header {
+    display: flex;
+    padding-top: 3rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+
+    .app-logo {
+        min-width: 15rem;
+    }
+
+    .app-subtitle {
+        padding-top: 1rem;
+    }
+}

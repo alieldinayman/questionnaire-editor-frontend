@@ -1,0 +1,10 @@
+button {
+    font-size: 3rem;
+    cursor: pointer;
+
+    &.is-transparent {
+        background-color: transparent;
+        color: #fff;
+        border: none;
+    }
+}
