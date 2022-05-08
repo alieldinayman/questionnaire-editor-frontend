@@ -1,7 +1,7 @@
 import '@/components/organisms/QuestionContainer.scss';
-import VerticalDivider from '../atoms/VerticalDivider';
-import QuestionStatistics from '../molecules/QuestionStatistics';
-import QuestionEditor from './QuestionEditor';
+import VerticalDivider from '@/components/atoms/VerticalDivider';
+import QuestionStatistics from '@/components/molecules/QuestionStatistics';
+import QuestionEditor from '@/components/organisms/QuestionEditor';
 
 function QuestionContainer() {
     return (
