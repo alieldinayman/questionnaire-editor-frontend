@@ -83,10 +83,11 @@ function QuestionEditor() {
     }
 
     function uploadImage(event: any, imageParent: Question | Answer) {
-        let uploadedImage = event.target.files[0];
+        let uploadedImage = event.target.files?.length > 0 ? event.target.files[0] : null;
 
         // Validate that the uploaded file is an image before assigning it
-        imageParent.image = uploadedImage?.type.includes('image') ? uploadedImage : imageParent.image;
+        if (!uploadedImage?.type.includes('image')) return;
+        imageParent.image = uploadedImage;
 
         // Also used for rerendering the image
         setUploadedImagesCount(uploadedImagesCount + 1);
