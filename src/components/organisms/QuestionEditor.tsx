@@ -30,7 +30,7 @@ function QuestionEditor() {
                 </button>
             </td>
             <td>
-                <input className="is-transparent" placeholder="Question" />
+                <input type="text" className="is-transparent" placeholder="Question" />
             </td>
             {answersList.map((answer: Answer, answerIndex: number) => (
                 <td key={`${answerIndex}-${questionIndex}`}>
@@ -42,7 +42,7 @@ function QuestionEditor() {
 
     const answerElements = answersList.map((answer: Answer, index: number) => (
         <th key={index}>
-            <input className="is-transparent" placeholder="Answer" />
+            <input type="text" className="is-transparent" placeholder="Answer" />
         </th>
     ));
 
@@ -95,7 +95,8 @@ function QuestionEditor() {
 
     return (
         <div className="editor-container column is-two-thirds has-text-centered">
-            <h3>Questionnaire Title</h3>
+            {/* <h3>Questionnaire Title</h3> */}
+            <input type="text" className="is-title is-transparent" placeholder="Questionnaire Title" />
             <table>
                 <thead>
                     <tr>
