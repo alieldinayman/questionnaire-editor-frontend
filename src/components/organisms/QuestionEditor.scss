@@ -62,6 +62,10 @@
             margin: 1rem 0rem;
         }
 
+        &::placeholder {
+            font-style: italic;
+        }
+
         &:focus::placeholder {
             color: transparent;
         }
