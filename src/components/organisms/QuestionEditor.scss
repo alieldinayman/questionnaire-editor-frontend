@@ -20,6 +20,35 @@
 
         .control-btn-container {
             border: none;
+
+            .upload-img-btn {
+                padding: 0;
+                background-color: transparent;
+                border: none;
+
+                .placeholder-img {
+                    cursor: pointer;
+                    inline-size: 100%;
+                    aspect-ratio: 1/1;
+                    object-fit: cover;
+                    max-width: 2.5rem;
+                    max-height: 2.5rem;
+                    background-color: gray;
+                    padding: 0.3rem 0.3rem;
+                    border-radius: 0.2rem;
+                }
+            }
+        }
+
+        input.is-transparent {
+            font-size: 1rem;
+            color: white;
+            border: none;
+            background-color: transparent;
+
+            &:focus {
+                outline: none;
+            }
         }
     }
 }
