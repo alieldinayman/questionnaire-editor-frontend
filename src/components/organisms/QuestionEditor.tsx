@@ -2,7 +2,7 @@ import '@/components/organisms/QuestionEditor.scss';
 
 function QuestionEditor() {
     return (
-        <div>
+        <div className="column is-two-thirds">
             <table>
                 <thead>
                     <tr>

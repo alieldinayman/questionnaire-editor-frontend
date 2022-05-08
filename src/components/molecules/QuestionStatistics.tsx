@@ -2,7 +2,7 @@ import '@/components/molecules/QuestionStatistics.scss';
 
 function QuestionStatistics() {
     return (
-        <div>
+        <div className="column">
             <h3>Summary</h3>
 
             <p>Rows: </p>

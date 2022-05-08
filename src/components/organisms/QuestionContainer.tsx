@@ -5,7 +5,7 @@ import QuestionEditor from './QuestionEditor';
 
 function QuestionContainer() {
     return (
-        <div className="question-container">
+        <div className="columns is-flex-wrap-wrap">
             <QuestionEditor />
             <VerticalDivider />
             <QuestionStatistics />
