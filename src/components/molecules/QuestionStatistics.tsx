@@ -5,9 +5,11 @@ function QuestionStatistics() {
         <div className="column">
             <h3>Summary</h3>
 
-            <p>Rows: </p>
-            <p>Columns: </p>
-            <p>Longest: </p>
+            <p>No. of Rows: </p>
+            <p>No. of Columns: </p>
+            <p>Images Uploaded: </p>
+            <p>Longest Row Label: </p>
+            <p>Longest Column Label: </p>
         </div>
     );
 }

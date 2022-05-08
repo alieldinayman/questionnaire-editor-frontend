@@ -1,16 +1,25 @@
-table {
-    margin: auto;
+.editor-container {
+    overflow-x: auto;
     text-align: center;
-    border-collapse: collapse;
 
-    td,
-    th {
-        border: 1px solid #ddd;
-        border-radius: 100px;
-        padding: 10px;
-    }
+    table {
+        margin: auto;
+        text-align: center;
+        border-collapse: collapse;
 
-    th:empty {
-        border: 0;
+        td,
+        th {
+            border: 1px solid #ddd;
+            border-radius: 100px;
+            padding: 10px;
+        }
+
+        th:empty {
+            border: 0;
+        }
+
+        .control-btn-container {
+            border: none;
+        }
     }
 }
