@@ -1,6 +1,6 @@
 import '@/components/organisms/QuestionnaireView.scss';
 import VerticalDivider from '@/components/atoms/VerticalDivider';
-import QuestionStatistics from '@/components/molecules/QuestionStatistics';
+import QuestionnaireStatistics from '@/components/molecules/QuestionnaireStatistics';
 import QuestionEditor from '@/components/organisms/QuestionEditor';
 import { Questionnaire } from '@/models/Questionnaire';
 import { useState } from 'react';
@@ -31,7 +31,7 @@ function QuestionnaireView() {
                 onQuestionnaireTitleModified={handleQuestionnaireTitleChange}
             />
             <VerticalDivider />
-            <QuestionStatistics questionnaire={questionnaire} />
+            <QuestionnaireStatistics questionnaire={questionnaire} />
         </div>
     );
 }
