@@ -21,7 +21,6 @@ function QuestionEditor(props: QuestionEditorProps) {
     // #region Hooks
     const [questionsList, setQuestionsList] = useState<Array<Question>>([...props.questionnaire.questions]);
     const [answersList, setAnswersList] = useState<Array<Answer>>([...props.questionnaire.answers]);
-    const [uploadedImagesCount, setUploadedImagesCount] = useState(0);
 
     useEffect(() => props.onAnswersModified(answersList), [answersList]);
     useEffect(() => props.onQuestionsModified(questionsList), [questionsList]);
@@ -138,9 +137,7 @@ function QuestionEditor(props: QuestionEditorProps) {
         if (!uploadedImage?.type.includes('image')) return;
         imageParent.image = uploadedImage;
 
-        // Also used for rerendering the image
-        setUploadedImagesCount(uploadedImagesCount + 1);
-
+        // Update the question/answers's image
         if (elementType === QuestionnaireElementType.Question) {
             let questionsCopy = [...questionsList];
             let questionCopy = { ...questionsCopy[elementIndex], image: uploadedImage };
