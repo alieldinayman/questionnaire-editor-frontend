@@ -11,14 +11,28 @@ function QuestionnaireStatistics(props: QuestionnaireStatisticsProps) {
             <h3>Summary</h3>
 
             <label className="stat-label">
-                No. of Rows: <strong>{props.questionnaire.questions.length}</strong>
+                No. of Rows:&nbsp;
+                <strong>{props.questionnaire.questions.length}</strong>
             </label>
             <label className="stat-label">
-                No. of Columns: <strong>{props.questionnaire.answers.length}</strong>
+                No. of Columns:&nbsp;
+                <strong>{props.questionnaire.answers.length}</strong>
             </label>
-            <label className="stat-label">Images Uploaded: </label>
-            <label className="stat-label">Longest Row Label: </label>
-            <label className="stat-label">Longest Column Label: </label>
+            <label className="stat-label">
+                Images Uploaded:&nbsp;
+                <strong>
+                    {props.questionnaire.questions.flatMap((question) => question.image ?? []).length +
+                        props.questionnaire.answers.flatMap((answer) => answer.image ?? []).length}
+                </strong>
+            </label>
+            <label className="stat-label">
+                Longest Row Label:&nbsp;
+                <strong>{Math.max(...props.questionnaire.questions.map((question) => question.title.length))}</strong>
+            </label>
+            <label className="stat-label">
+                Longest Column Label:&nbsp;
+                <strong>{Math.max(...props.questionnaire.answers.map((answer) => answer.title.length))}</strong>
+            </label>
         </div>
     );
 }
