@@ -2,13 +2,32 @@ import '@/components/organisms/QuestionEditor.scss';
 import PlusIcon from '@/assets/images/plus-icon.png';
 import { Answer } from '@/models/Answer';
 import { Question } from '@/models/Question';
-import { useState, createRef } from 'react';
+import { useState, createRef, useEffect } from 'react';
+import { Questionnaire } from '@/models/Questionnaire';
 
-function QuestionEditor() {
-    const [questionsList, setQuestionsList] = useState<Array<Question>>([new Question('Question')]);
-    const [answersList, setAnswersList] = useState<Array<Answer>>([new Answer('Answer')]);
+type QuestionEditorProps = {
+    questionnaire: Questionnaire;
+    onQuestionsModified: (questions: Array<Question>) => void;
+    onAnswersModified: (answers: Array<Answer>) => void;
+    onQuestionnaireTitleModified: (title: string) => void;
+};
+
+enum QuestionnaireElementType {
+    Question,
+    Answer,
+}
+
+function QuestionEditor(props: QuestionEditorProps) {
+    // #region Hooks
+    const [questionsList, setQuestionsList] = useState<Array<Question>>([...props.questionnaire.questions]);
+    const [answersList, setAnswersList] = useState<Array<Answer>>([...props.questionnaire.answers]);
     const [uploadedImagesCount, setUploadedImagesCount] = useState(0);
 
+    useEffect(() => props.onAnswersModified(answersList), [answersList]);
+    useEffect(() => props.onQuestionsModified(questionsList), [questionsList]);
+    //#endregion
+
+    // #region UI Elements
     const questionImageRefs = questionsList.map((question) => createRef<any>());
     const answerImageRefs = answersList.map((answer) => createRef<any>());
 
@@ -25,12 +44,25 @@ function QuestionEditor() {
                         type="file"
                         hidden
                         ref={questionImageRefs[questionIndex]}
-                        onChange={(event) => uploadImage(event, question)}
+                        onChange={(event) =>
+                            uploadImage(event, question, QuestionnaireElementType.Question, questionIndex)
+                        }
                     />
                 </button>
             </td>
             <td>
-                <input type="text" className="is-transparent" placeholder="Question" />
+                <input
+                    type="text"
+                    className="is-transparent"
+                    placeholder="Question"
+                    value={question.title}
+                    onChange={(event) => {
+                        let questionsCopy = [...questionsList];
+                        let questionCopy = { ...questionsCopy[questionIndex], title: event.target.value };
+                        questionsCopy[questionIndex] = questionCopy;
+                        setQuestionsList(questionsCopy);
+                    }}
+                />
             </td>
             {answersList.map((answer: Answer, answerIndex: number) => (
                 <td key={`${answerIndex}-${questionIndex}`}>
@@ -42,14 +74,25 @@ function QuestionEditor() {
 
     const answerElements = answersList.map((answer: Answer, index: number) => (
         <th key={index}>
-            <input type="text" className="is-transparent" placeholder="Answer" />
+            <input
+                type="text"
+                className="is-transparent"
+                placeholder="Answer"
+                value={answer.title}
+                onChange={(event) => {
+                    let answersCopy = [...answersList];
+                    let answerCopy = { ...answersCopy[index], title: event.target.value };
+                    answersCopy[index] = answerCopy;
+                    setAnswersList(answersCopy);
+                }}
+            />
         </th>
     ));
 
     // Unlike the question elements, these elements can not be directly rendered with the answer elements
-    const answerImageElements = answersList.map((answer: Answer, index: number) => (
-        <td className="control-btn-container" key={index}>
-            <button className="upload-img-btn" onClick={() => answerImageRefs[index].current.click()}>
+    const answerImageElements = answersList.map((answer: Answer, answerIndex: number) => (
+        <td className="control-btn-container" key={answerIndex}>
+            <button className="upload-img-btn" onClick={() => answerImageRefs[answerIndex].current.click()}>
                 <img
                     className="placeholder-img"
                     src={answer.image ? URL.createObjectURL(answer.image) : PlusIcon}
@@ -58,16 +101,17 @@ function QuestionEditor() {
                 <input
                     type="file"
                     hidden
-                    ref={answerImageRefs[index]}
-                    onChange={(event) => uploadImage(event, answer)}
+                    ref={answerImageRefs[answerIndex]}
+                    onChange={(event) => uploadImage(event, answer, QuestionnaireElementType.Answer, answerIndex)}
                 />
             </button>
         </td>
     ));
+    //#endregion
 
     // #region Questionnaire manipulation functions
     function addNewQuestion(): void {
-        setQuestionsList([...questionsList, new Question('Question')]);
+        setQuestionsList([...questionsList, new Question('')]);
     }
 
     function popQuestionsList(): void {
@@ -75,14 +119,19 @@ function QuestionEditor() {
     }
 
     function addNewAnswer(): void {
-        setAnswersList([...answersList, new Question('Answer')]);
+        setAnswersList([...answersList, new Question('')]);
     }
 
     function popAnswersList(): void {
         setAnswersList(answersList.slice(0, -1));
     }
 
-    function uploadImage(event: any, imageParent: Question | Answer) {
+    function uploadImage(
+        event: any,
+        imageParent: Question | Answer,
+        elementType: QuestionnaireElementType,
+        elementIndex: number
+    ): void {
         let uploadedImage = event.target.files?.length > 0 ? event.target.files[0] : null;
 
         // Validate that the uploaded file is an image before assigning it
@@ -91,13 +140,30 @@ function QuestionEditor() {
 
         // Also used for rerendering the image
         setUploadedImagesCount(uploadedImagesCount + 1);
+
+        if (elementType === QuestionnaireElementType.Question) {
+            let questionsCopy = [...questionsList];
+            let questionCopy = { ...questionsCopy[elementIndex], image: uploadedImage };
+            questionsCopy[elementIndex] = questionCopy;
+            setQuestionsList(questionsCopy);
+        } else if (elementType === QuestionnaireElementType.Answer) {
+            let answersCopy = [...answersList];
+            let answerCopy = { ...answersCopy[elementIndex], image: uploadedImage };
+            answersCopy[elementIndex] = answerCopy;
+            setAnswersList(answersCopy);
+        }
     }
     // #endregion
 
     return (
         <div className="editor-container column is-two-thirds has-text-centered">
-            {/* <h3>Questionnaire Title</h3> */}
-            <input type="text" className="is-title is-transparent" placeholder="Questionnaire Title" />
+            <input
+                type="text"
+                className="is-title is-transparent"
+                placeholder="Questionnaire Title"
+                value={props.questionnaire.title}
+                onChange={(event) => props.onQuestionnaireTitleModified(event.target.value)}
+            />
             <table>
                 <thead>
                     <tr>
