@@ -25,6 +25,19 @@ function QuestionEditor(props: QuestionEditorProps) {
 
     useEffect(() => props.onAnswersModified(answersList), [answersList]);
     useEffect(() => props.onQuestionsModified(questionsList), [questionsList]);
+
+    const elementTypeLogicMap = {
+        [QuestionnaireElementType.Question]: {
+            list: questionsList,
+            setListHook: setQuestionsList,
+            type: Question,
+        },
+        [QuestionnaireElementType.Answer]: {
+            list: answersList,
+            setListHook: setAnswersList,
+            type: Answer,
+        },
+    };
     //#endregion
 
     // #region UI Elements
@@ -102,20 +115,16 @@ function QuestionEditor(props: QuestionEditorProps) {
     //#endregion
 
     // #region Questionnaire manipulation functions
-    function addNewQuestion(): void {
-        setQuestionsList([...questionsList, new Question('')]);
+    function addQuestionnaireElement(elementType: QuestionnaireElementType): void {
+        let elementList = elementTypeLogicMap[elementType].list;
+        let setList = elementTypeLogicMap[elementType].setListHook;
+        setList([...elementList, new elementTypeLogicMap[elementType].type('')]);
     }
 
-    function popQuestionsList(): void {
-        setQuestionsList(questionsList.slice(0, -1));
-    }
-
-    function addNewAnswer(): void {
-        setAnswersList([...answersList, new Question('')]);
-    }
-
-    function popAnswersList(): void {
-        setAnswersList(answersList.slice(0, -1));
+    function popQuestionnaireList(elementType: QuestionnaireElementType): void {
+        let elementList = elementTypeLogicMap[elementType].list;
+        let setList = elementTypeLogicMap[elementType].setListHook;
+        setList(elementList.slice(0, -1));
     }
 
     async function uploadImage(event: any, elementType: QuestionnaireElementType, elementIndex: number): Promise<void> {
@@ -128,17 +137,11 @@ function QuestionEditor(props: QuestionEditorProps) {
         const encodedImage: string = await Utils.convertToBase64(uploadedImage);
 
         // Update the question/answers's image
-        if (elementType === QuestionnaireElementType.Question) {
-            let questionsCopy = [...questionsList];
-            let questionCopy = { ...questionsCopy[elementIndex], image: encodedImage };
-            questionsCopy[elementIndex] = questionCopy;
-            setQuestionsList(questionsCopy);
-        } else if (elementType === QuestionnaireElementType.Answer) {
-            let answersCopy = [...answersList];
-            let answerCopy = { ...answersCopy[elementIndex], image: encodedImage };
-            answersCopy[elementIndex] = answerCopy;
-            setAnswersList(answersCopy);
-        }
+        const imageParentList = elementTypeLogicMap[elementType].list;
+        let listCopy = [...imageParentList];
+        let elementCopy = { ...listCopy[elementIndex], image: encodedImage };
+        listCopy[elementIndex] = elementCopy;
+        elementTypeLogicMap[elementType].setListHook(listCopy);
     }
 
     // #endregion
@@ -159,8 +162,8 @@ function QuestionEditor(props: QuestionEditorProps) {
                         <th></th>
                         {answerImageElements}
                         <th className="control-btn-container">
-                            <button onClick={addNewAnswer}>+</button>
-                            <button onClick={popAnswersList}>-</button>
+                            <button onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)}>+</button>
+                            <button onClick={() => popQuestionnaireList(QuestionnaireElementType.Answer)}>-</button>
                         </th>
                     </tr>
                     <tr>
@@ -173,8 +176,10 @@ function QuestionEditor(props: QuestionEditorProps) {
                     {questionElements}
                     <tr>
                         <td className="control-btn-container">
-                            <button onClick={addNewQuestion}>+</button>
-                            <button onClick={popQuestionsList}>-</button>
+                            <button onClick={() => addQuestionnaireElement(QuestionnaireElementType.Question)}>
+                                +
+                            </button>
+                            <button onClick={() => popQuestionnaireList(QuestionnaireElementType.Question)}>-</button>
                         </td>
                     </tr>
                 </tbody>
