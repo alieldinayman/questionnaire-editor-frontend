@@ -1,5 +1,5 @@
 export class Question {
-    constructor(public title: string, public image?: File) {
+    constructor(public title: string, public image?: string) {
         this.title = title;
         this.image = image;
     }

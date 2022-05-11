@@ -4,6 +4,7 @@ import { Answer } from '@/models/Answer';
 import { Question } from '@/models/Question';
 import { useState, createRef, useEffect } from 'react';
 import { Questionnaire } from '@/models/Questionnaire';
+import Utils from '@/utils';
 
 type QuestionEditorProps = {
     questionnaire: Questionnaire;
@@ -34,18 +35,13 @@ function QuestionEditor(props: QuestionEditorProps) {
         <tr key={questionIndex}>
             <td className="control-btn-container" key={questionIndex}>
                 <button className="upload-img-btn" onClick={() => questionImageRefs[questionIndex].current.click()}>
-                    <img
-                        className="placeholder-img"
-                        src={question.image ? URL.createObjectURL(question.image) : PlusIcon}
-                        key={question.image?.name}
-                    />
+                    <img className="placeholder-img" src={question.image ?? PlusIcon} key={question.image} />
                     <input
                         type="file"
+                        accept="image/*"
                         hidden
                         ref={questionImageRefs[questionIndex]}
-                        onChange={(event) =>
-                            uploadImage(event, question, QuestionnaireElementType.Question, questionIndex)
-                        }
+                        onChange={(event) => uploadImage(event, QuestionnaireElementType.Question, questionIndex)}
                     />
                 </button>
             </td>
@@ -92,16 +88,13 @@ function QuestionEditor(props: QuestionEditorProps) {
     const answerImageElements = answersList.map((answer: Answer, answerIndex: number) => (
         <td className="control-btn-container" key={answerIndex}>
             <button className="upload-img-btn" onClick={() => answerImageRefs[answerIndex].current.click()}>
-                <img
-                    className="placeholder-img"
-                    src={answer.image ? URL.createObjectURL(answer.image) : PlusIcon}
-                    key={answer.image?.name}
-                />
+                <img className="placeholder-img" src={answer.image ?? PlusIcon} key={answer.image} />
                 <input
                     type="file"
+                    accept="image/*"
                     hidden
                     ref={answerImageRefs[answerIndex]}
-                    onChange={(event) => uploadImage(event, answer, QuestionnaireElementType.Answer, answerIndex)}
+                    onChange={(event) => uploadImage(event, QuestionnaireElementType.Answer, answerIndex)}
                 />
             </button>
         </td>
@@ -125,31 +118,29 @@ function QuestionEditor(props: QuestionEditorProps) {
         setAnswersList(answersList.slice(0, -1));
     }
 
-    function uploadImage(
-        event: any,
-        imageParent: Question | Answer,
-        elementType: QuestionnaireElementType,
-        elementIndex: number
-    ): void {
-        let uploadedImage = event.target.files?.length > 0 ? event.target.files[0] : null;
+    async function uploadImage(event: any, elementType: QuestionnaireElementType, elementIndex: number): Promise<void> {
+        let uploadedImage: File = event.target.files?.length > 0 ? event.target.files[0] : null;
 
         // Validate that the uploaded file is an image before assigning it
         if (!uploadedImage?.type.includes('image')) return;
-        imageParent.image = uploadedImage;
+
+        // Base64 encode the image
+        const encodedImage: string = await Utils.convertToBase64(uploadedImage);
 
         // Update the question/answers's image
         if (elementType === QuestionnaireElementType.Question) {
             let questionsCopy = [...questionsList];
-            let questionCopy = { ...questionsCopy[elementIndex], image: uploadedImage };
+            let questionCopy = { ...questionsCopy[elementIndex], image: encodedImage };
             questionsCopy[elementIndex] = questionCopy;
             setQuestionsList(questionsCopy);
         } else if (elementType === QuestionnaireElementType.Answer) {
             let answersCopy = [...answersList];
-            let answerCopy = { ...answersCopy[elementIndex], image: uploadedImage };
+            let answerCopy = { ...answersCopy[elementIndex], image: encodedImage };
             answersCopy[elementIndex] = answerCopy;
             setAnswersList(answersCopy);
         }
     }
+
     // #endregion
 
     return (
