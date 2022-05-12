@@ -1,4 +1,4 @@
-import '@/components/atoms/LoadingSpinner.scss';
+import './LoadingSpinner.scss';
 
 function LoadingSpinner() {
     return (

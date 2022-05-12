@@ -1,10 +1,8 @@
-import '@/components/organisms/QuestionEditor.scss';
-import PlusIcon from '@/assets/images/plus-icon.png';
-import { Answer } from '@/models/Answer';
-import { Question } from '@/models/Question';
+import './QuestionEditor.scss';
 import { useState, createRef, useEffect } from 'react';
-import { Questionnaire } from '@/models/Questionnaire';
+import { Questionnaire, Question, Answer } from '@/models';
 import Utils from '@/utils';
+import PlusIcon from '@/assets/images/plus-icon.png';
 
 type QuestionEditorProps = {
     questionnaire: Questionnaire;

@@ -1,11 +1,9 @@
-import '@/components/organisms/QuestionnaireView.scss';
-import VerticalDivider from '@/components/atoms/VerticalDivider';
-import QuestionnaireStatistics from '@/components/molecules/QuestionnaireStatistics';
-import QuestionEditor from '@/components/organisms/QuestionEditor';
-import { Questionnaire } from '@/models/Questionnaire';
+import './QuestionnaireView.scss';
 import { useState } from 'react';
-import { Question } from '@/models/Question';
-import { Answer } from '@/models/Answer';
+import { VerticalDivider } from '@/components/atoms';
+import { QuestionnaireStatistics } from '@/components/molecules';
+import { QuestionEditor } from '@/components/organisms';
+import { Questionnaire, Question, Answer } from '@/models';
 
 function QuestionnaireView() {
     const [questionnaire, setQuestionnaire] = useState(new Questionnaire('', [new Question('')], [new Answer('')]));

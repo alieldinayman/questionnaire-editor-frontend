@@ -1,7 +1,6 @@
-import '@/App.scss';
+import './App.scss';
 import 'bulma/sass/grid/columns.sass';
-import AppHeader from '@/components/organisms/AppHeader';
-import QuestionnaireView from '@/components/organisms/QuestionnaireView';
+import { AppHeader, QuestionnaireView } from '@/components/organisms';
 
 function App() {
     return (

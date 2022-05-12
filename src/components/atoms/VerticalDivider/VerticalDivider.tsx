@@ -1,4 +1,4 @@
-import '@/components/atoms/VerticalDivider.scss';
+import './VerticalDivider.scss';
 
 function VerticalDivider() {
     return (

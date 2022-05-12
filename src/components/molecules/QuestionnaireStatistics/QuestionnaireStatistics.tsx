@@ -1,5 +1,5 @@
-import '@/components/molecules/QuestionnaireStatistics.scss';
-import { Questionnaire } from '@/models/Questionnaire';
+import './QuestionnaireStatistics.scss';
+import { Questionnaire } from '@/models';
 
 type QuestionnaireStatisticsProps = {
     questionnaire: Questionnaire;

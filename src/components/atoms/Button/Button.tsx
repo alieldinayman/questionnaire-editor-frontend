@@ -1,4 +1,4 @@
-import '@/components/atoms/Button.scss';
+import './Button.scss';
 
 type ButtonProps = {
     className?: string;
