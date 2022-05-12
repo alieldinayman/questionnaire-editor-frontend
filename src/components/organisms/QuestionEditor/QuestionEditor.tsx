@@ -46,7 +46,11 @@ function QuestionEditor(props: QuestionEditorProps) {
         <tr key={questionIndex}>
             <td className="control-btn-container" key={questionIndex}>
                 <button className="upload-img-btn" onClick={() => questionImageRefs[questionIndex].current.click()}>
-                    <img className="placeholder-img" src={question.image ?? PlusIcon} key={question.image} />
+                    <img
+                        className="placeholder-img"
+                        src={question.image ? `data:image/jpeg;base64,${question.image}` : PlusIcon}
+                        key={question.image}
+                    />
                     <input
                         type="file"
                         accept="image/*"
@@ -99,7 +103,11 @@ function QuestionEditor(props: QuestionEditorProps) {
     const answerImageElements = answersList.map((answer: Answer, answerIndex: number) => (
         <td className="control-btn-container" key={answerIndex}>
             <button className="upload-img-btn" onClick={() => answerImageRefs[answerIndex].current.click()}>
-                <img className="placeholder-img" src={answer.image ?? PlusIcon} key={answer.image} />
+                <img
+                    className="placeholder-img"
+                    src={answer.image ? `data:image/jpeg;base64,${answer.image}` : PlusIcon}
+                    key={answer.image}
+                />
                 <input
                     type="file"
                     accept="image/*"
