@@ -1,6 +1,6 @@
 import './QuestionnaireView.scss';
 import { useEffect, useState } from 'react';
-import { LoadingSpinner, VerticalDivider } from '@/components/atoms';
+import { Button, LoadingSpinner, VerticalDivider } from '@/components/atoms';
 import { QuestionnaireStatistics } from '@/components/molecules';
 import { QuestionEditor } from '@/components/organisms';
 import { Questionnaire, Question, Answer } from '@/models';
@@ -8,6 +8,7 @@ import QuestionnaireService from '@/services/QuestionnaireService';
 
 function QuestionnaireView() {
     const [questionnaire, setQuestionnaire] = useState<Questionnaire | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function getLatestQuestionnaire() {
@@ -17,6 +18,7 @@ function QuestionnaireView() {
             }
 
             setQuestionnaire(fetchedQuestionnaire);
+            setLoading(false);
         }
 
         getLatestQuestionnaire();
@@ -35,20 +37,33 @@ function QuestionnaireView() {
     }
 
     function getViewContent() {
-        return questionnaire ? (
-            <div className="columns is-flex-wrap-wrap">
-                <QuestionEditor
-                    questionnaire={questionnaire}
-                    onQuestionsModified={handleQuestionsListChange}
-                    onAnswersModified={handleAnswersListChange}
-                    onQuestionnaireTitleModified={handleQuestionnaireTitleChange}
-                />
-                <VerticalDivider />
-                <QuestionnaireStatistics questionnaire={questionnaire} />
+        return questionnaire && !loading ? (
+            <div>
+                <div className="columns is-flex-wrap-wrap">
+                    <QuestionEditor
+                        questionnaire={questionnaire}
+                        onQuestionsModified={handleQuestionsListChange}
+                        onAnswersModified={handleAnswersListChange}
+                        onQuestionnaireTitleModified={handleQuestionnaireTitleChange}
+                    />
+                    <VerticalDivider />
+                    <QuestionnaireStatistics questionnaire={questionnaire} />
+                </div>
+                <Button onClick={() => saveQuestionnaire(questionnaire)} text="Save" />
             </div>
         ) : (
             <LoadingSpinner />
         );
+    }
+
+    async function saveQuestionnaire() {
+        if (!questionnaire) {
+            return;
+        }
+
+        setLoading(true);
+        await QuestionnaireService.saveQuestionnaire(questionnaire);
+        setLoading(false);
     }
 
     return getViewContent();

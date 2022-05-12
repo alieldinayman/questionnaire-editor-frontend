@@ -3,17 +3,13 @@ import axios from './common';
 
 const QuestionnaireService = {
     async getQuestionnaire(): Promise<Questionnaire> {
-        // Axios get request with headers
-        const response = await axios.get('/questionnaire', {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
+        const response = await axios.get(import.meta.env.VITE_APP_QUESTIONNAIRE_ENDPOINT);
         return response.data;
     },
 
-    async saveQuestionnaire(questionnaire: Questionnaire): Promise<void> {},
+    async saveQuestionnaire(questionnaire: Questionnaire): Promise<void> {
+        await axios.post(import.meta.env.VITE_APP_QUESTIONNAIRE_ENDPOINT, questionnaire);
+    },
 };
 
 export default QuestionnaireService;

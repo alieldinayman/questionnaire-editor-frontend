@@ -142,10 +142,13 @@ function QuestionEditor(props: QuestionEditorProps) {
         // Base64 encode the image
         const encodedImage: string = await Utils.convertToBase64(uploadedImage);
 
+        // Remove the image type prefix from the encoded image string
+        const imageString: string = encodedImage.replace(/^data:image\/[a-z]+;base64,/, '');
+
         // Update the question/answers's image
         const imageParentList = elementTypeLogicMap[elementType].list;
         let listCopy = [...imageParentList];
-        let elementCopy = { ...listCopy[elementIndex], image: encodedImage };
+        let elementCopy = { ...listCopy[elementIndex], image: imageString };
         listCopy[elementIndex] = elementCopy;
         elementTypeLogicMap[elementType].setListHook(listCopy);
     }
