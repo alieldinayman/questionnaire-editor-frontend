@@ -13,10 +13,6 @@ function QuestionnaireView() {
     useEffect(() => {
         async function getLatestQuestionnaire() {
             const fetchedQuestionnaire = await QuestionnaireService.getQuestionnaire();
-            if (!fetchedQuestionnaire) {
-                return new Questionnaire('', [new Question('')], [new Answer('')]);
-            }
-
             setQuestionnaire(fetchedQuestionnaire);
             setLoading(false);
         }
@@ -49,7 +45,7 @@ function QuestionnaireView() {
                     <VerticalDivider />
                     <QuestionnaireStatistics questionnaire={questionnaire} />
                 </div>
-                <Button onClick={() => saveQuestionnaire(questionnaire)} text="Save" />
+                <Button onClick={saveQuestionnaire} text="Save" />
             </div>
         ) : (
             <LoadingSpinner />
