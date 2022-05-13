@@ -27,11 +27,13 @@ function QuestionnaireStatistics(props: QuestionnaireStatisticsProps) {
             </label>
             <label className="stat-label">
                 Longest Row Label:&nbsp;
-                <strong>{Math.max(...props.questionnaire.questions.map((question) => question.title.length))}</strong>
+                <strong>
+                    {Math.max(...props.questionnaire.questions.map((question) => question.title?.length ?? 0))}
+                </strong>
             </label>
             <label className="stat-label">
                 Longest Column Label:&nbsp;
-                <strong>{Math.max(...props.questionnaire.answers.map((answer) => answer.title.length))}</strong>
+                <strong>{Math.max(...props.questionnaire.answers.map((answer) => answer.title?.length ?? 0))}</strong>
             </label>
         </div>
     );

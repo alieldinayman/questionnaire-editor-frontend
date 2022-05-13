@@ -129,6 +129,10 @@ function QuestionEditor(props: QuestionEditorProps) {
 
     function popQuestionnaireList(elementType: QuestionnaireElementType): void {
         let elementList = elementTypeLogicMap[elementType].list;
+
+        // Restrict element lists to have at least one element
+        if (elementList.length <= 1) return;
+
         let setList = elementTypeLogicMap[elementType].setListHook;
         setList(elementList.slice(0, -1));
     }
@@ -172,7 +176,12 @@ function QuestionEditor(props: QuestionEditorProps) {
                         {answerImageElements}
                         <th className="control-btn-container">
                             <button onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)}>+</button>
-                            <button onClick={() => popQuestionnaireList(QuestionnaireElementType.Answer)}>-</button>
+                            <button
+                                onClick={() => popQuestionnaireList(QuestionnaireElementType.Answer)}
+                                disabled={answersList.length <= 1}
+                            >
+                                -
+                            </button>
                         </th>
                     </tr>
                     <tr>
@@ -188,7 +197,12 @@ function QuestionEditor(props: QuestionEditorProps) {
                             <button onClick={() => addQuestionnaireElement(QuestionnaireElementType.Question)}>
                                 +
                             </button>
-                            <button onClick={() => popQuestionnaireList(QuestionnaireElementType.Question)}>-</button>
+                            <button
+                                onClick={() => popQuestionnaireList(QuestionnaireElementType.Question)}
+                                disabled={questionsList.length <= 1}
+                            >
+                                -
+                            </button>
                         </td>
                     </tr>
                 </tbody>
