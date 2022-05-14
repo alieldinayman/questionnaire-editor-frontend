@@ -64,7 +64,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                 {question.image && (
                     <Button
                         text="X"
-                        className="reset-btn"
+                        className="reset-btn is-transparent"
                         onClick={() => updateElementImage(QuestionnaireElementType.Question, questionIndex, '')}
                     />
                 )}
@@ -82,6 +82,11 @@ function QuestionEditor(props: QuestionEditorProps) {
                         setQuestionsList(questionsCopy);
                     }}
                 />
+                <Button
+                    text="X"
+                    className="reset-btn is-transparent is-table-row"
+                    onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Question, questionIndex)}
+                />
             </td>
             {answersList.map((answer: Answer, answerIndex: number) => (
                 <td key={`${answerIndex}-${questionIndex}`}>
@@ -91,8 +96,8 @@ function QuestionEditor(props: QuestionEditorProps) {
         </tr>
     ));
 
-    const answerElements = answersList.map((answer: Answer, index: number) => (
-        <th key={index}>
+    const answerElements = answersList.map((answer: Answer, answerIndex: number) => (
+        <th key={answerIndex}>
             <input
                 type="text"
                 className="is-transparent"
@@ -100,10 +105,16 @@ function QuestionEditor(props: QuestionEditorProps) {
                 value={answer.title}
                 onChange={(event) => {
                     let answersCopy = [...answersList];
-                    let answerCopy = { ...answersCopy[index], title: event.target.value };
-                    answersCopy[index] = answerCopy;
+                    let answerCopy = { ...answersCopy[answerIndex], title: event.target.value };
+                    answersCopy[answerIndex] = answerCopy;
                     setAnswersList(answersCopy);
                 }}
+            />
+
+            <Button
+                text="X"
+                className="reset-btn is-transparent is-table-column"
+                onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Answer, answerIndex)}
             />
         </th>
     ));
@@ -128,7 +139,7 @@ function QuestionEditor(props: QuestionEditorProps) {
             {answer.image && (
                 <Button
                     text="X"
-                    className="reset-btn"
+                    className="reset-btn is-transparent"
                     onClick={() => updateElementImage(QuestionnaireElementType.Answer, answerIndex, '')}
                 />
             )}
@@ -143,14 +154,13 @@ function QuestionEditor(props: QuestionEditorProps) {
         setList([...elementList, new elementTypeLogicMap[elementType].type('')]);
     }
 
-    function popQuestionnaireList(elementType: QuestionnaireElementType): void {
-        let elementList = elementTypeLogicMap[elementType].list;
-
+    function removeQuestionnaireElement(elementType: QuestionnaireElementType, elementIndex: number): void {
         // Restrict element lists to have at least one element
+        let elementList = elementTypeLogicMap[elementType].list;
         if (elementList.length <= 1) return;
 
         let setList = elementTypeLogicMap[elementType].setListHook;
-        setList(elementList.slice(0, -1));
+        setList(elementList.filter((_, index) => index != elementIndex));
     }
 
     async function uploadImage(event: any, elementType: QuestionnaireElementType, elementIndex: number): Promise<void> {
@@ -188,7 +198,6 @@ function QuestionEditor(props: QuestionEditorProps) {
         listCopy[elementIndex] = elementCopy;
         elementTypeLogicMap[elementType].setListHook(listCopy);
     }
-
     // #endregion
 
     return (
@@ -207,13 +216,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                         <th></th>
                         {answerImageElements}
                         <th className="control-btn-container">
-                            <button onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)}>+</button>
-                            <button
-                                onClick={() => popQuestionnaireList(QuestionnaireElementType.Answer)}
-                                disabled={answersList.length <= 1}
-                            >
-                                -
-                            </button>
+                            <Button text="+" onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)} />
                         </th>
                     </tr>
                     <tr>
@@ -226,15 +229,10 @@ function QuestionEditor(props: QuestionEditorProps) {
                     {questionElements}
                     <tr>
                         <td className="control-btn-container">
-                            <button onClick={() => addQuestionnaireElement(QuestionnaireElementType.Question)}>
-                                +
-                            </button>
-                            <button
-                                onClick={() => popQuestionnaireList(QuestionnaireElementType.Question)}
-                                disabled={questionsList.length <= 1}
-                            >
-                                -
-                            </button>
+                            <Button
+                                text="+"
+                                onClick={() => addQuestionnaireElement(QuestionnaireElementType.Question)}
+                            />
                         </td>
                     </tr>
                 </tbody>

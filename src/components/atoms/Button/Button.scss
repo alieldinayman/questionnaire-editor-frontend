@@ -10,9 +10,16 @@ button {
         z-index: 2;
         transform: translateX(-120%);
         padding: 0;
-        background-color: transparent;
-        border: none;
         font-weight: bold;
+        color: rgba(255, 255, 255, 0.8);
+
+        &.is-table-column {
+            transform: translate(-100%, -40%);
+        }
+
+        &.is-table-row {
+            transform: translate(-100%, -100%);
+        }
 
         &:hover {
             color: rgb(192, 84, 84);
