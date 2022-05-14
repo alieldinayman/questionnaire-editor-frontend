@@ -7,7 +7,14 @@ import { Questionnaire, Question, Answer } from '@/models';
 import QuestionnaireService from '@/services/QuestionnaireService';
 import Alert from '@/components/atoms/Alert/Alert';
 
+enum QuestionnairePropertyType {
+    Title,
+    Questions,
+    Answers,
+}
+
 function QuestionnaireView() {
+    // #region Hooks
     const [questionnaire, setQuestionnaire] = useState<Questionnaire | null>(null);
     const [loading, setLoading] = useState(true);
     const [triggerAlert, setTriggerAlert] = useState(false);
@@ -27,6 +34,27 @@ function QuestionnaireView() {
             handleDataValidation(err.message, true);
         }
     }, []);
+    // #endregion
+
+    // #region Questionnaire Data Logic
+    function handleQuestionnaireChange(propertyType: QuestionnairePropertyType, value: any) {
+        if (!questionnaire) {
+            return;
+        }
+
+        // Using a switch to avoid hard typing of the property
+        switch (propertyType) {
+            case QuestionnairePropertyType.Title:
+                setQuestionnaire({ ...questionnaire, title: value });
+                break;
+            case QuestionnairePropertyType.Questions:
+                setQuestionnaire({ ...questionnaire, questions: value });
+                break;
+            case QuestionnairePropertyType.Answers:
+                setQuestionnaire({ ...questionnaire, answers: value });
+                break;
+        }
+    }
 
     async function saveQuestionnaire() {
         if (!questionnaire) {
@@ -42,57 +70,48 @@ function QuestionnaireView() {
         }
     }
 
-    function handleQuestionsListChange(questionList: Array<Question>) {
-        setQuestionnaire(questionnaire ? { ...questionnaire, questions: questionList } : null);
-    }
-
-    function handleAnswersListChange(answerList: Array<Answer>) {
-        setQuestionnaire(questionnaire ? { ...questionnaire, answers: answerList } : null);
-    }
-
-    function handleQuestionnaireTitleChange(title: string) {
-        setQuestionnaire(questionnaire ? { ...questionnaire, title: title } : null);
-    }
-
     function handleDataValidation(message: string, isError: boolean = false) {
         setLoading(false);
         setValidationError(isError);
         setValidationMessage(isError ? `Error: ${message}.` : message);
         setTriggerAlert(true);
     }
+    // #endregion
 
-    function getViewContent() {
-        return (
-            <div>
-                {questionnaire && (
-                    <div>
-                        <div className="columns is-flex-wrap-wrap">
-                            <QuestionEditor
-                                questionnaire={questionnaire}
-                                onQuestionsModified={handleQuestionsListChange}
-                                onAnswersModified={handleAnswersListChange}
-                                onQuestionnaireTitleModified={handleQuestionnaireTitleChange}
-                                onQuestionEditorError={(message) => handleDataValidation(message, true)}
-                            />
-                            <VerticalDivider />
-                            <QuestionnaireStatistics questionnaire={questionnaire} />
-                        </div>
-                        <Button onClick={saveQuestionnaire} text="Save" />
+    return (
+        <div>
+            {questionnaire && (
+                <div>
+                    <div className="columns is-flex-wrap-wrap">
+                        <QuestionEditor
+                            questionnaire={questionnaire}
+                            onQuestionnaireTitleModified={(title) =>
+                                handleQuestionnaireChange(QuestionnairePropertyType.Title, title)
+                            }
+                            onQuestionsModified={(questions) =>
+                                handleQuestionnaireChange(QuestionnairePropertyType.Questions, questions)
+                            }
+                            onAnswersModified={(answers) =>
+                                handleQuestionnaireChange(QuestionnairePropertyType.Answers, answers)
+                            }
+                            onQuestionEditorError={(message) => handleDataValidation(message, true)}
+                        />
+                        <VerticalDivider />
+                        <QuestionnaireStatistics questionnaire={questionnaire} />
                     </div>
-                )}
-                {loading && <LoadingSpinner />}
-                <Alert
-                    triggerAlert={triggerAlert}
-                    onAlertExpire={() => setTriggerAlert(false)}
-                    text={validationMessage}
-                    duration={3000}
-                    isError={validationError}
-                />
-            </div>
-        );
-    }
-
-    return getViewContent();
+                    <Button onClick={saveQuestionnaire} text="Save" />
+                </div>
+            )}
+            {loading && <LoadingSpinner />}
+            <Alert
+                triggerAlert={triggerAlert}
+                onAlertExpire={() => setTriggerAlert(false)}
+                text={validationMessage}
+                duration={3000}
+                isError={validationError}
+            />
+        </div>
+    );
 }
 
 export default QuestionnaireView;
