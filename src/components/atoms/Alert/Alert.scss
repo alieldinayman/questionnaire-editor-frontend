@@ -1,0 +1,35 @@
+.alert {
+    position: fixed;
+    top: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    background: rgba(76, 175, 80, 0.5);
+    opacity: 0;
+    white-space: nowrap;
+    user-select: none;
+
+    &.is-active {
+        animation: alertFadeInOut 3s forwards;
+    }
+
+    &.is-error {
+        background: rgba(244, 67, 54, 0.5);
+    }
+
+    @keyframes alertFadeInOut {
+        0% {
+            opacity: 0;
+        }
+        20% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+}

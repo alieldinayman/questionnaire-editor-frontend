@@ -5,10 +5,14 @@ import { QuestionnaireStatistics } from '@/components/molecules';
 import { QuestionEditor } from '@/components/organisms';
 import { Questionnaire, Question, Answer } from '@/models';
 import QuestionnaireService from '@/services/QuestionnaireService';
+import Alert from '@/components/atoms/Alert/Alert';
 
 function QuestionnaireView() {
     const [questionnaire, setQuestionnaire] = useState<Questionnaire | null>(null);
     const [loading, setLoading] = useState(true);
+    const [triggerAlert, setTriggerAlert] = useState(false);
+    const [validationMessage, setValidationMessage] = useState('');
+    const [validationError, setValidationError] = useState(false);
 
     useEffect(() => {
         async function getLatestQuestionnaire() {
@@ -17,8 +21,26 @@ function QuestionnaireView() {
             setLoading(false);
         }
 
-        getLatestQuestionnaire();
+        try {
+            getLatestQuestionnaire();
+        } catch (err: any) {
+            handleApiResponse(err.message, true);
+        }
     }, []);
+
+    async function saveQuestionnaire() {
+        if (!questionnaire) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await QuestionnaireService.saveQuestionnaire(questionnaire);
+            handleApiResponse('Questionnaire has been saved successfully.');
+        } catch (err: any) {
+            handleApiResponse(err.message, true);
+        }
+    }
 
     function handleQuestionsListChange(questionList: Array<Question>) {
         setQuestionnaire(questionnaire ? { ...questionnaire, questions: questionList } : null);
@@ -30,6 +52,13 @@ function QuestionnaireView() {
 
     function handleQuestionnaireTitleChange(title: string) {
         setQuestionnaire(questionnaire ? { ...questionnaire, title: title } : null);
+    }
+
+    function handleApiResponse(message: string, isError: boolean = false) {
+        setValidationError(isError);
+        setLoading(false);
+        setValidationMessage(isError ? `Error: ${message}, please try again later.` : message);
+        setTriggerAlert(true);
     }
 
     function getViewContent() {
@@ -46,20 +75,17 @@ function QuestionnaireView() {
                     <QuestionnaireStatistics questionnaire={questionnaire} />
                 </div>
                 <Button onClick={saveQuestionnaire} text="Save" />
+                <Alert
+                    triggerAlert={triggerAlert}
+                    onAlertExpire={() => setTriggerAlert(false)}
+                    text={validationMessage}
+                    duration={3000}
+                    isError={validationError}
+                />
             </div>
         ) : (
             <LoadingSpinner />
         );
-    }
-
-    async function saveQuestionnaire() {
-        if (!questionnaire) {
-            return;
-        }
-
-        setLoading(true);
-        await QuestionnaireService.saveQuestionnaire(questionnaire);
-        setLoading(false);
     }
 
     return getViewContent();
