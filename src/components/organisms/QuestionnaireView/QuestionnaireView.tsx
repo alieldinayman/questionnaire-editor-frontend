@@ -55,26 +55,32 @@ function QuestionnaireView() {
     }
 
     function handleApiResponse(message: string, isError: boolean = false) {
-        setValidationError(isError);
         setLoading(false);
-        setValidationMessage(isError ? `Error: ${message}, please try again later.` : message);
+        setValidationError(isError);
+        setValidationMessage(isError ? `Error: ${message}.` : message);
         setTriggerAlert(true);
     }
 
     function getViewContent() {
-        return questionnaire && !loading ? (
+        return (
             <div>
-                <div className="columns is-flex-wrap-wrap">
-                    <QuestionEditor
-                        questionnaire={questionnaire}
-                        onQuestionsModified={handleQuestionsListChange}
-                        onAnswersModified={handleAnswersListChange}
-                        onQuestionnaireTitleModified={handleQuestionnaireTitleChange}
-                    />
-                    <VerticalDivider />
-                    <QuestionnaireStatistics questionnaire={questionnaire} />
-                </div>
-                <Button onClick={saveQuestionnaire} text="Save" />
+                {questionnaire && (
+                    <div>
+                        <div className="columns is-flex-wrap-wrap">
+                            <QuestionEditor
+                                questionnaire={questionnaire}
+                                onQuestionsModified={handleQuestionsListChange}
+                                onAnswersModified={handleAnswersListChange}
+                                onQuestionnaireTitleModified={handleQuestionnaireTitleChange}
+                                onUploadImageError={(message) => handleApiResponse(message, true)}
+                            />
+                            <VerticalDivider />
+                            <QuestionnaireStatistics questionnaire={questionnaire} />
+                        </div>
+                        <Button onClick={saveQuestionnaire} text="Save" />
+                    </div>
+                )}
+                {loading && <LoadingSpinner />}
                 <Alert
                     triggerAlert={triggerAlert}
                     onAlertExpire={() => setTriggerAlert(false)}
@@ -83,8 +89,6 @@ function QuestionnaireView() {
                     isError={validationError}
                 />
             </div>
-        ) : (
-            <LoadingSpinner />
         );
     }
 

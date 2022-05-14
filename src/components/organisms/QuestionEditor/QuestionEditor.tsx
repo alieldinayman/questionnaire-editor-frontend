@@ -9,6 +9,7 @@ type QuestionEditorProps = {
     onQuestionsModified: (questions: Array<Question>) => void;
     onAnswersModified: (answers: Array<Answer>) => void;
     onQuestionnaireTitleModified: (title: string) => void;
+    onUploadImageError: (error: string) => void;
 };
 
 enum QuestionnaireElementType {
@@ -53,7 +54,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                     />
                     <input
                         type="file"
-                        accept="image/*"
+                        accept="image/png, image/jpeg, image/gif"
                         hidden
                         ref={questionImageRefs[questionIndex]}
                         onChange={(event) => uploadImage(event, QuestionnaireElementType.Question, questionIndex)}
@@ -110,7 +111,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                 />
                 <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png, image/jpeg, image/gif"
                     hidden
                     ref={answerImageRefs[answerIndex]}
                     onChange={(event) => uploadImage(event, QuestionnaireElementType.Answer, answerIndex)}
@@ -141,7 +142,17 @@ function QuestionEditor(props: QuestionEditorProps) {
         let uploadedImage: File = event.target.files?.length > 0 ? event.target.files[0] : null;
 
         // Validate that the uploaded file is an image before assigning it
-        if (!uploadedImage?.type.includes('image')) return;
+        if (!uploadedImage?.type.includes('image')) {
+            props.onUploadImageError('Uploaded file is not a valid image');
+            return;
+        }
+
+        if (uploadedImage.size > import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT) {
+            props.onUploadImageError(
+                `Image exceeds the upload size limit of ${import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT / 100000} MB`
+            );
+            return;
+        }
 
         // Base64 encode the image
         const encodedImage: string = await Utils.convertToBase64(uploadedImage);
