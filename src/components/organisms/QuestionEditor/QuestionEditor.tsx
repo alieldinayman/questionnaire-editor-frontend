@@ -3,6 +3,7 @@ import { useState, createRef, useEffect } from 'react';
 import { Questionnaire, Question, Answer } from '@/models';
 import Utils from '@/utils';
 import PlusIcon from '@/assets/images/plus-icon.png';
+import { Button } from '@/components/atoms';
 
 type QuestionEditorProps = {
     questionnaire: Questionnaire;
@@ -60,6 +61,13 @@ function QuestionEditor(props: QuestionEditorProps) {
                         onChange={(event) => uploadImage(event, QuestionnaireElementType.Question, questionIndex)}
                     />
                 </button>
+                {question.image && (
+                    <Button
+                        text="X"
+                        className="reset-btn"
+                        onClick={() => updateElementImage(QuestionnaireElementType.Question, questionIndex, '')}
+                    />
+                )}
             </td>
             <td>
                 <input
@@ -100,7 +108,7 @@ function QuestionEditor(props: QuestionEditorProps) {
         </th>
     ));
 
-    // Unlike the question elements, these elements can not be directly rendered with the answer elements
+    // These elements can not be directly rendered with the answer elements since they are table data themselves
     const answerImageElements = answersList.map((answer: Answer, answerIndex: number) => (
         <td className="control-btn-container" key={answerIndex}>
             <button className="upload-img-btn" onClick={() => answerImageRefs[answerIndex].current.click()}>
@@ -117,6 +125,13 @@ function QuestionEditor(props: QuestionEditorProps) {
                     onChange={(event) => uploadImage(event, QuestionnaireElementType.Answer, answerIndex)}
                 />
             </button>
+            {answer.image && (
+                <Button
+                    text="X"
+                    className="reset-btn"
+                    onClick={() => updateElementImage(QuestionnaireElementType.Answer, answerIndex, '')}
+                />
+            )}
         </td>
     ));
     //#endregion
@@ -149,7 +164,9 @@ function QuestionEditor(props: QuestionEditorProps) {
 
         if (uploadedImage.size > import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT) {
             props.onUploadImageError(
-                `Image exceeds the upload size limit of ${import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT / 100000} MB`
+                `Image exceeds the upload size limit of ${
+                    import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT / 1000000
+                } MB`
             );
             return;
         }
@@ -161,9 +178,13 @@ function QuestionEditor(props: QuestionEditorProps) {
         const imageString: string = encodedImage.replace(/^data:image\/[a-z]+;base64,/, '');
 
         // Update the question/answers's image
+        updateElementImage(elementType, elementIndex, imageString);
+    }
+
+    function updateElementImage(elementType: QuestionnaireElementType, elementIndex: number, imageValue: string): void {
         const imageParentList = elementTypeLogicMap[elementType].list;
         let listCopy = [...imageParentList];
-        let elementCopy = { ...listCopy[elementIndex], image: imageString };
+        let elementCopy = { ...listCopy[elementIndex], image: imageValue };
         listCopy[elementIndex] = elementCopy;
         elementTypeLogicMap[elementType].setListHook(listCopy);
     }

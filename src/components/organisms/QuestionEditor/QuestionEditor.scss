@@ -1,4 +1,5 @@
 .editor-container {
+    position: relative;
     overflow-x: auto;
     text-align: center;
 
@@ -30,8 +31,8 @@
                     inline-size: 100%;
                     aspect-ratio: 1/1;
                     object-fit: cover;
-                    max-width: 2.5rem;
-                    max-height: 2.5rem;
+                    width: 2.5rem;
+                    height: 2.5rem;
                     background-color: gray;
                     padding: 0.3rem 0.3rem;
                     border-radius: 0.2rem;
