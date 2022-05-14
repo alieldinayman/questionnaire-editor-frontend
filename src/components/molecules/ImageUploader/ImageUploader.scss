@@ -1,0 +1,17 @@
+.upload-img-btn {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+
+    .placeholder-img {
+        cursor: pointer;
+        inline-size: 100%;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: gray;
+        padding: 0.3rem 0.3rem;
+        border-radius: 0.2rem;
+    }
+}

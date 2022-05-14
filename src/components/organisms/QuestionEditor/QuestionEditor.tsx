@@ -1,9 +1,8 @@
 import './QuestionEditor.scss';
-import { useState, createRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Questionnaire, Question, Answer } from '@/models';
-import Utils from '@/utils';
-import PlusIcon from '@/assets/images/plus-icon.png';
 import { Button } from '@/components/atoms';
+import { ImageUploader } from '@/components/molecules';
 
 type QuestionEditorProps = {
     questionnaire: Questionnaire;
@@ -41,33 +40,16 @@ function QuestionEditor(props: QuestionEditorProps) {
     //#endregion
 
     // #region UI Elements
-    const questionImageRefs = questionsList.map((question) => createRef<any>());
-    const answerImageRefs = answersList.map((answer) => createRef<any>());
-
     const questionElements = questionsList.map((question: Question, questionIndex: number) => (
         <tr key={questionIndex}>
-            <td className="control-btn-container" key={questionIndex}>
-                <button className="upload-img-btn" onClick={() => questionImageRefs[questionIndex].current.click()}>
-                    <img
-                        className="placeholder-img"
-                        src={question.image ? `data:image/jpeg;base64,${question.image}` : PlusIcon}
-                        key={question.image}
-                    />
-                    <input
-                        type="file"
-                        accept="image/png, image/jpeg, image/gif"
-                        hidden
-                        ref={questionImageRefs[questionIndex]}
-                        onChange={(event) => uploadImage(event, QuestionnaireElementType.Question, questionIndex)}
-                    />
-                </button>
-                {question.image && (
-                    <Button
-                        text="X"
-                        className="reset-btn is-transparent"
-                        onClick={() => updateElementImage(QuestionnaireElementType.Question, questionIndex, '')}
-                    />
-                )}
+            <td className="is-borderless" key={questionIndex}>
+                <ImageUploader
+                    parentElement={question}
+                    onImageChange={(image) =>
+                        updateElementImage(QuestionnaireElementType.Question, questionIndex, image)
+                    }
+                    onUploadImageError={(error) => props.onQuestionEditorError(error)}
+                />
             </td>
             <td>
                 <input
@@ -75,17 +57,14 @@ function QuestionEditor(props: QuestionEditorProps) {
                     className="is-transparent"
                     placeholder="Question"
                     value={question.title}
-                    onChange={(event) => {
-                        let questionsCopy = [...questionsList];
-                        let questionCopy = { ...questionsCopy[questionIndex], title: event.target.value };
-                        questionsCopy[questionIndex] = questionCopy;
-                        setQuestionsList(questionsCopy);
-                    }}
+                    onChange={(event) =>
+                        updateElementTitle(QuestionnaireElementType.Question, questionIndex, event.target.value)
+                    }
                 />
                 <Button
                     text="X"
                     className="reset-btn is-transparent is-table-row"
-                    onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Question, questionIndex)}
+                    onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Question, question)}
                 />
             </td>
             {answersList.map((answer: Answer, answerIndex: number) => (
@@ -103,101 +82,64 @@ function QuestionEditor(props: QuestionEditorProps) {
                 className="is-transparent"
                 placeholder="Answer"
                 value={answer.title}
-                onChange={(event) => {
-                    let answersCopy = [...answersList];
-                    let answerCopy = { ...answersCopy[answerIndex], title: event.target.value };
-                    answersCopy[answerIndex] = answerCopy;
-                    setAnswersList(answersCopy);
-                }}
+                onChange={(event) =>
+                    updateElementTitle(QuestionnaireElementType.Answer, answerIndex, event.target.value)
+                }
             />
 
             <Button
                 text="X"
                 className="reset-btn is-transparent is-table-column"
-                onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Answer, answerIndex)}
+                onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Answer, answer)}
             />
         </th>
     ));
 
     // These elements can not be directly rendered with the answer elements since they are table data themselves
     const answerImageElements = answersList.map((answer: Answer, answerIndex: number) => (
-        <td className="control-btn-container" key={answerIndex}>
-            <button className="upload-img-btn" onClick={() => answerImageRefs[answerIndex].current.click()}>
-                <img
-                    className="placeholder-img"
-                    src={answer.image ? `data:image/jpeg;base64,${answer.image}` : PlusIcon}
-                    key={answer.image}
-                />
-                <input
-                    type="file"
-                    accept="image/png, image/jpeg, image/gif"
-                    hidden
-                    ref={answerImageRefs[answerIndex]}
-                    onChange={(event) => uploadImage(event, QuestionnaireElementType.Answer, answerIndex)}
-                />
-            </button>
-            {answer.image && (
-                <Button
-                    text="X"
-                    className="reset-btn is-transparent"
-                    onClick={() => updateElementImage(QuestionnaireElementType.Answer, answerIndex, '')}
-                />
-            )}
+        <td className="is-borderless" key={answerIndex}>
+            <ImageUploader
+                parentElement={answer}
+                onImageChange={(image) => updateElementImage(QuestionnaireElementType.Answer, answerIndex, image)}
+                onUploadImageError={(error) => props.onQuestionEditorError(error)}
+            />
         </td>
     ));
     //#endregion
 
     // #region Questionnaire manipulation functions
     function addQuestionnaireElement(elementType: QuestionnaireElementType): void {
-        let elementList = elementTypeLogicMap[elementType].list;
-        let setList = elementTypeLogicMap[elementType].setListHook;
+        const elementList = elementTypeLogicMap[elementType].list;
+        const setList = elementTypeLogicMap[elementType].setListHook;
+
+        // Create a new instance and push it to the list
         setList([...elementList, new elementTypeLogicMap[elementType].type('')]);
     }
 
-    function removeQuestionnaireElement(elementType: QuestionnaireElementType, elementIndex: number): void {
+    function removeQuestionnaireElement(elementType: QuestionnaireElementType, element: Question | Answer): void {
         // Restrict element lists to have at least one element
-        let elementList = elementTypeLogicMap[elementType].list;
+        const elementList = elementTypeLogicMap[elementType].list;
         if (elementList.length <= 1) {
             props.onQuestionEditorError('Questionnaire must contain at least one question and answer');
             return;
         }
 
-        let setList = elementTypeLogicMap[elementType].setListHook;
-        setList(elementList.filter((_, index) => index != elementIndex));
-    }
-
-    async function uploadImage(event: any, elementType: QuestionnaireElementType, elementIndex: number): Promise<void> {
-        let uploadedImage: File = event.target.files?.length > 0 ? event.target.files[0] : null;
-
-        // Validate that the uploaded file is an image before assigning it
-        if (!uploadedImage?.type.includes('image')) {
-            props.onQuestionEditorError('Uploaded file is not a valid image');
-            return;
-        }
-
-        if (uploadedImage.size > import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT) {
-            props.onQuestionEditorError(
-                `Selected image exceeds the upload size limit of ${
-                    import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT / 1000000
-                } MB`
-            );
-            return;
-        }
-
-        // Base64 encode the image
-        const encodedImage: string = await Utils.convertToBase64(uploadedImage);
-
-        // Remove the image type prefix from the encoded image string
-        const imageString: string = encodedImage.replace(/^data:image\/[a-z]+;base64,/, '');
-
-        // Update the question/answers's image
-        updateElementImage(elementType, elementIndex, imageString);
+        const setList = elementTypeLogicMap[elementType].setListHook;
+        setList(elementList.filter((listElement) => listElement !== element));
     }
 
     function updateElementImage(elementType: QuestionnaireElementType, elementIndex: number, imageValue: string): void {
         const imageParentList = elementTypeLogicMap[elementType].list;
         let listCopy = [...imageParentList];
         let elementCopy = { ...listCopy[elementIndex], image: imageValue };
+        listCopy[elementIndex] = elementCopy;
+        elementTypeLogicMap[elementType].setListHook(listCopy);
+    }
+
+    function updateElementTitle(elementType: QuestionnaireElementType, elementIndex: number, titleValue: string): void {
+        const imageParentList = elementTypeLogicMap[elementType].list;
+        let listCopy = [...imageParentList];
+        let elementCopy = { ...listCopy[elementIndex], title: titleValue };
         listCopy[elementIndex] = elementCopy;
         elementTypeLogicMap[elementType].setListHook(listCopy);
     }
@@ -218,7 +160,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                         <th></th>
                         <th></th>
                         {answerImageElements}
-                        <th className="control-btn-container">
+                        <th className="is-borderless">
                             <Button text="+" onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)} />
                         </th>
                     </tr>
@@ -231,7 +173,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                 <tbody>
                     {questionElements}
                     <tr>
-                        <td className="control-btn-container">
+                        <td className="is-borderless">
                             <Button
                                 text="+"
                                 onClick={() => addQuestionnaireElement(QuestionnaireElementType.Question)}
