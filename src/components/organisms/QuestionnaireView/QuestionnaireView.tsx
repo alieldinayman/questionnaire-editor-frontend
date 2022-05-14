@@ -24,7 +24,7 @@ function QuestionnaireView() {
         try {
             getLatestQuestionnaire();
         } catch (err: any) {
-            handleApiResponse(err.message, true);
+            handleDataValidation(err.message, true);
         }
     }, []);
 
@@ -36,9 +36,9 @@ function QuestionnaireView() {
         setLoading(true);
         try {
             await QuestionnaireService.saveQuestionnaire(questionnaire);
-            handleApiResponse('Questionnaire has been saved successfully.');
+            handleDataValidation('Questionnaire has been saved successfully.');
         } catch (err: any) {
-            handleApiResponse(err.message, true);
+            handleDataValidation(err.message, true);
         }
     }
 
@@ -54,7 +54,7 @@ function QuestionnaireView() {
         setQuestionnaire(questionnaire ? { ...questionnaire, title: title } : null);
     }
 
-    function handleApiResponse(message: string, isError: boolean = false) {
+    function handleDataValidation(message: string, isError: boolean = false) {
         setLoading(false);
         setValidationError(isError);
         setValidationMessage(isError ? `Error: ${message}.` : message);
@@ -72,7 +72,7 @@ function QuestionnaireView() {
                                 onQuestionsModified={handleQuestionsListChange}
                                 onAnswersModified={handleAnswersListChange}
                                 onQuestionnaireTitleModified={handleQuestionnaireTitleChange}
-                                onUploadImageError={(message) => handleApiResponse(message, true)}
+                                onQuestionEditorError={(message) => handleDataValidation(message, true)}
                             />
                             <VerticalDivider />
                             <QuestionnaireStatistics questionnaire={questionnaire} />

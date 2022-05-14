@@ -10,7 +10,7 @@ type QuestionEditorProps = {
     onQuestionsModified: (questions: Array<Question>) => void;
     onAnswersModified: (answers: Array<Answer>) => void;
     onQuestionnaireTitleModified: (title: string) => void;
-    onUploadImageError: (error: string) => void;
+    onQuestionEditorError: (error: string) => void;
 };
 
 enum QuestionnaireElementType {
@@ -157,7 +157,10 @@ function QuestionEditor(props: QuestionEditorProps) {
     function removeQuestionnaireElement(elementType: QuestionnaireElementType, elementIndex: number): void {
         // Restrict element lists to have at least one element
         let elementList = elementTypeLogicMap[elementType].list;
-        if (elementList.length <= 1) return;
+        if (elementList.length <= 1) {
+            props.onQuestionEditorError('Questionnaire must contain at least one question and answer');
+            return;
+        }
 
         let setList = elementTypeLogicMap[elementType].setListHook;
         setList(elementList.filter((_, index) => index != elementIndex));
@@ -168,13 +171,13 @@ function QuestionEditor(props: QuestionEditorProps) {
 
         // Validate that the uploaded file is an image before assigning it
         if (!uploadedImage?.type.includes('image')) {
-            props.onUploadImageError('Uploaded file is not a valid image');
+            props.onQuestionEditorError('Uploaded file is not a valid image');
             return;
         }
 
         if (uploadedImage.size > import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT) {
-            props.onUploadImageError(
-                `Image exceeds the upload size limit of ${
+            props.onQuestionEditorError(
+                `Selected image exceeds the upload size limit of ${
                     import.meta.env.VITE_APP_UPLOAD_IMAGE_SIZE_LIMIT / 1000000
                 } MB`
             );
