@@ -81,8 +81,8 @@ function QuestionnaireView() {
     return (
         <div>
             {questionnaire && (
-                <div>
-                    <div className="columns is-flex-wrap-wrap">
+                <div className="questionnaire-container">
+                    <div className="columns">
                         <QuestionEditor
                             questionnaire={questionnaire}
                             onQuestionnaireTitleModified={(title) =>
@@ -99,7 +99,9 @@ function QuestionnaireView() {
                         <VerticalDivider />
                         <QuestionnaireStatistics questionnaire={questionnaire} />
                     </div>
-                    <Button onClick={saveQuestionnaire} text="Save" />
+                    <div className="save-btn-container">
+                        <Button className="save-btn" onClick={saveQuestionnaire} text="Save" />
+                    </div>
                 </div>
             )}
             {loading && <LoadingSpinner />}

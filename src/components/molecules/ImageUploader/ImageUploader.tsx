@@ -55,20 +55,12 @@ function ImageUploader(props: ImageUploaderProps) {
 
     return (
         <div>
-            <button className="upload-img-btn" onClick={() => imageRef.current.click()}>
-                <img
-                    className="placeholder-img"
-                    src={uploadedImage ? `data:image/jpeg;base64,${uploadedImage}` : PlusIcon}
-                    key={uploadedImage}
-                />
-                <input
-                    type="file"
-                    accept="image/png, image/jpeg, image/gif"
-                    hidden
-                    ref={imageRef}
-                    onChange={uploadImage}
-                />
-            </button>
+            <Button
+                className="is-transparent"
+                image={uploadedImage ? `data:image/jpeg;base64,${uploadedImage}` : PlusIcon}
+                onClick={() => imageRef.current.click()}
+            />
+            <input type="file" accept="image/png, image/jpeg, image/gif" hidden ref={imageRef} onChange={uploadImage} />
             {uploadedImage && <Button text="X" className="reset-btn is-transparent" onClick={removeUploadedImage} />}
         </div>
     );

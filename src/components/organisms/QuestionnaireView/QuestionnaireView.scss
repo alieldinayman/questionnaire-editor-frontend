@@ -1,4 +1,14 @@
-.columns {
-    margin: 5rem 0rem;
+.questionnaire-container {
     animation: delayedFadeInAnimation ease 1s;
+    margin-bottom: 2rem;
+
+    .columns {
+        margin: 5rem 0rem;
+    }
+
+    .save-btn-container {
+        display: flex;
+        justify-content: center;
+        margin-top: auto;
+    }
 }

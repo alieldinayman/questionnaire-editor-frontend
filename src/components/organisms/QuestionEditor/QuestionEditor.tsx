@@ -1,4 +1,6 @@
 import './QuestionEditor.scss';
+import 'bulma/sass/grid/columns.sass';
+import GreenPlusIcon from '@/assets/images/green-plus-icon.png';
 import { useState, useEffect } from 'react';
 import { Questionnaire, Question, Answer } from '@/models';
 import { Button } from '@/components/atoms';
@@ -61,11 +63,13 @@ function QuestionEditor(props: QuestionEditorProps) {
                         updateElementTitle(QuestionnaireElementType.Question, questionIndex, event.target.value)
                     }
                 />
-                <Button
-                    text="X"
-                    className="reset-btn is-transparent is-table-row"
-                    onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Question, question)}
-                />
+                {questionsList.length > 1 && (
+                    <Button
+                        text="X"
+                        className="reset-btn is-transparent is-table-row"
+                        onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Question, question)}
+                    />
+                )}
             </td>
             {answersList.map((answer: Answer, answerIndex: number) => (
                 <td key={`${answerIndex}-${questionIndex}`}>
@@ -87,11 +91,13 @@ function QuestionEditor(props: QuestionEditorProps) {
                 }
             />
 
-            <Button
-                text="X"
-                className="reset-btn is-transparent is-table-column"
-                onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Answer, answer)}
-            />
+            {answersList.length > 1 && (
+                <Button
+                    text="X"
+                    className="reset-btn is-transparent is-table-column"
+                    onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Answer, answer)}
+                />
+            )}
         </th>
     ));
 
@@ -107,7 +113,7 @@ function QuestionEditor(props: QuestionEditorProps) {
     ));
     //#endregion
 
-    // #region Questionnaire manipulation functions
+    // #region Questionnaire Manipulation Logic
     function addQuestionnaireElement(elementType: QuestionnaireElementType): void {
         const elementList = elementTypeLogicMap[elementType].list;
         const setList = elementTypeLogicMap[elementType].setListHook;
@@ -161,7 +167,11 @@ function QuestionEditor(props: QuestionEditorProps) {
                         <th></th>
                         {answerImageElements}
                         <th className="is-borderless">
-                            <Button text="+" onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)} />
+                            <Button
+                                className="is-transparent has-transparent-img"
+                                image={GreenPlusIcon}
+                                onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)}
+                            />
                         </th>
                     </tr>
                     <tr>
@@ -175,7 +185,8 @@ function QuestionEditor(props: QuestionEditorProps) {
                     <tr>
                         <td className="is-borderless">
                             <Button
-                                text="+"
+                                className="is-transparent has-transparent-img"
+                                image={GreenPlusIcon}
                                 onClick={() => addQuestionnaireElement(QuestionnaireElementType.Question)}
                             />
                         </td>
