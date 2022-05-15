@@ -2,44 +2,76 @@ import './QuestionEditor.scss';
 import 'bulma/sass/grid/columns.sass';
 import GreenPlusIcon from '@/assets/images/green-plus-icon.png';
 import { useState, useEffect } from 'react';
-import { Questionnaire, Question, Answer } from '@/models';
 import { Button } from '@/components/atoms';
 import { ImageUploader } from '@/components/molecules';
+import { Questionnaire, Question, Answer } from '@/models';
+import { QuestionnaireProperty, QuestionnaireElement } from '@/constants';
 
 type QuestionEditorProps = {
     questionnaire: Questionnaire;
-    onQuestionsModified: (questions: Array<Question>) => void;
-    onAnswersModified: (answers: Array<Answer>) => void;
-    onQuestionnaireTitleModified: (title: string) => void;
+    onElementModified: (value: string | Array<Answer> | Array<Question>, type: QuestionnaireProperty) => void;
     onQuestionEditorError: (error: string) => void;
 };
-
-enum QuestionnaireElementType {
-    Question,
-    Answer,
-}
 
 function QuestionEditor(props: QuestionEditorProps) {
     // #region Hooks
     const [questionsList, setQuestionsList] = useState<Array<Question>>([...props.questionnaire.questions]);
     const [answersList, setAnswersList] = useState<Array<Answer>>([...props.questionnaire.answers]);
 
-    useEffect(() => props.onAnswersModified(answersList), [answersList]);
-    useEffect(() => props.onQuestionsModified(questionsList), [questionsList]);
+    useEffect(() => props.onElementModified(questionsList, QuestionnaireProperty.QUESTIONS), [questionsList]);
+    useEffect(() => props.onElementModified(answersList, QuestionnaireProperty.ANSWERS), [answersList]);
+    //#endregion
 
+    // #region Questionnaire Manipulation Logic
     const elementTypeLogicMap = {
-        [QuestionnaireElementType.Question]: {
+        [QuestionnaireElement.QUESTION]: {
             list: questionsList,
             setListHook: setQuestionsList,
             type: Question,
         },
-        [QuestionnaireElementType.Answer]: {
+        [QuestionnaireElement.ANSWER]: {
             list: answersList,
             setListHook: setAnswersList,
             type: Answer,
         },
     };
-    //#endregion
+
+    function addQuestionnaireElement(elementType: QuestionnaireElement): void {
+        const elementList = elementTypeLogicMap[elementType].list;
+        const setList = elementTypeLogicMap[elementType].setListHook;
+
+        // Create a new instance and push it to the list
+        setList([...elementList, new elementTypeLogicMap[elementType].type('')]);
+    }
+
+    function removeQuestionnaireElement(elementType: QuestionnaireElement, element: Question | Answer): void {
+        // Restrict element lists to have at least one element
+        const elementList = elementTypeLogicMap[elementType].list;
+        if (elementList.length <= 1) {
+            props.onQuestionEditorError('Questionnaire must contain at least one question and answer');
+            return;
+        }
+
+        const setList = elementTypeLogicMap[elementType].setListHook;
+        setList(elementList.filter((listElement) => listElement !== element));
+    }
+
+    function updateElementImage(elementType: QuestionnaireElement, elementIndex: number, imageValue: string): void {
+        const imageParentList = elementTypeLogicMap[elementType].list;
+        let listCopy = [...imageParentList];
+        let elementCopy = { ...listCopy[elementIndex], image: imageValue };
+        listCopy[elementIndex] = elementCopy;
+        elementTypeLogicMap[elementType].setListHook(listCopy);
+    }
+
+    function updateElementTitle(elementType: QuestionnaireElement, elementIndex: number, titleValue: string): void {
+        const imageParentList = elementTypeLogicMap[elementType].list;
+        let listCopy = [...imageParentList];
+        let elementCopy = { ...listCopy[elementIndex], title: titleValue };
+        listCopy[elementIndex] = elementCopy;
+        elementTypeLogicMap[elementType].setListHook(listCopy);
+    }
+    // #endregion
 
     // #region UI Elements
     const questionElements = questionsList.map((question: Question, questionIndex: number) => (
@@ -47,9 +79,7 @@ function QuestionEditor(props: QuestionEditorProps) {
             <td className="is-borderless" key={questionIndex}>
                 <ImageUploader
                     parentElement={question}
-                    onImageChange={(image) =>
-                        updateElementImage(QuestionnaireElementType.Question, questionIndex, image)
-                    }
+                    onImageChange={(image) => updateElementImage(QuestionnaireElement.QUESTION, questionIndex, image)}
                     onUploadImageError={(error) => props.onQuestionEditorError(error)}
                 />
             </td>
@@ -60,14 +90,14 @@ function QuestionEditor(props: QuestionEditorProps) {
                     placeholder="Question"
                     value={question.title}
                     onChange={(event) =>
-                        updateElementTitle(QuestionnaireElementType.Question, questionIndex, event.target.value)
+                        updateElementTitle(QuestionnaireElement.QUESTION, questionIndex, event.target.value)
                     }
                 />
                 {questionsList.length > 1 && (
                     <Button
                         text="X"
                         className="reset-btn is-transparent is-table-row"
-                        onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Question, question)}
+                        onClick={() => removeQuestionnaireElement(QuestionnaireElement.QUESTION, question)}
                     />
                 )}
             </td>
@@ -86,16 +116,14 @@ function QuestionEditor(props: QuestionEditorProps) {
                 className="is-transparent"
                 placeholder="Answer"
                 value={answer.title}
-                onChange={(event) =>
-                    updateElementTitle(QuestionnaireElementType.Answer, answerIndex, event.target.value)
-                }
+                onChange={(event) => updateElementTitle(QuestionnaireElement.ANSWER, answerIndex, event.target.value)}
             />
 
             {answersList.length > 1 && (
                 <Button
                     text="X"
                     className="reset-btn is-transparent is-table-column"
-                    onClick={() => removeQuestionnaireElement(QuestionnaireElementType.Answer, answer)}
+                    onClick={() => removeQuestionnaireElement(QuestionnaireElement.ANSWER, answer)}
                 />
             )}
         </th>
@@ -106,50 +134,12 @@ function QuestionEditor(props: QuestionEditorProps) {
         <td className="is-borderless" key={answerIndex}>
             <ImageUploader
                 parentElement={answer}
-                onImageChange={(image) => updateElementImage(QuestionnaireElementType.Answer, answerIndex, image)}
+                onImageChange={(image) => updateElementImage(QuestionnaireElement.ANSWER, answerIndex, image)}
                 onUploadImageError={(error) => props.onQuestionEditorError(error)}
             />
         </td>
     ));
     //#endregion
-
-    // #region Questionnaire Manipulation Logic
-    function addQuestionnaireElement(elementType: QuestionnaireElementType): void {
-        const elementList = elementTypeLogicMap[elementType].list;
-        const setList = elementTypeLogicMap[elementType].setListHook;
-
-        // Create a new instance and push it to the list
-        setList([...elementList, new elementTypeLogicMap[elementType].type('')]);
-    }
-
-    function removeQuestionnaireElement(elementType: QuestionnaireElementType, element: Question | Answer): void {
-        // Restrict element lists to have at least one element
-        const elementList = elementTypeLogicMap[elementType].list;
-        if (elementList.length <= 1) {
-            props.onQuestionEditorError('Questionnaire must contain at least one question and answer');
-            return;
-        }
-
-        const setList = elementTypeLogicMap[elementType].setListHook;
-        setList(elementList.filter((listElement) => listElement !== element));
-    }
-
-    function updateElementImage(elementType: QuestionnaireElementType, elementIndex: number, imageValue: string): void {
-        const imageParentList = elementTypeLogicMap[elementType].list;
-        let listCopy = [...imageParentList];
-        let elementCopy = { ...listCopy[elementIndex], image: imageValue };
-        listCopy[elementIndex] = elementCopy;
-        elementTypeLogicMap[elementType].setListHook(listCopy);
-    }
-
-    function updateElementTitle(elementType: QuestionnaireElementType, elementIndex: number, titleValue: string): void {
-        const imageParentList = elementTypeLogicMap[elementType].list;
-        let listCopy = [...imageParentList];
-        let elementCopy = { ...listCopy[elementIndex], title: titleValue };
-        listCopy[elementIndex] = elementCopy;
-        elementTypeLogicMap[elementType].setListHook(listCopy);
-    }
-    // #endregion
 
     return (
         <div className="editor-container column is-two-thirds has-text-centered">
@@ -158,7 +148,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                 className="is-title is-transparent"
                 placeholder="Questionnaire Title"
                 value={props.questionnaire.title}
-                onChange={(event) => props.onQuestionnaireTitleModified(event.target.value)}
+                onChange={(event) => props.onElementModified(event.target.value, QuestionnaireProperty.TITLE)}
             />
             <table>
                 <thead>
@@ -170,7 +160,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                             <Button
                                 className="is-transparent has-transparent-img"
                                 image={GreenPlusIcon}
-                                onClick={() => addQuestionnaireElement(QuestionnaireElementType.Answer)}
+                                onClick={() => addQuestionnaireElement(QuestionnaireElement.ANSWER)}
                             />
                         </th>
                     </tr>
@@ -187,7 +177,7 @@ function QuestionEditor(props: QuestionEditorProps) {
                             <Button
                                 className="is-transparent has-transparent-img"
                                 image={GreenPlusIcon}
-                                onClick={() => addQuestionnaireElement(QuestionnaireElementType.Question)}
+                                onClick={() => addQuestionnaireElement(QuestionnaireElement.QUESTION)}
                             />
                         </td>
                     </tr>

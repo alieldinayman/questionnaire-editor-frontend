@@ -1,17 +1,11 @@
 import './QuestionnaireView.scss';
 import { useEffect, useState } from 'react';
-import { Button, LoadingSpinner, VerticalDivider } from '@/components/atoms';
+import { Button, LoadingSpinner, VerticalDivider, Alert } from '@/components/atoms';
 import { QuestionnaireStatistics } from '@/components/molecules';
 import { QuestionEditor } from '@/components/organisms';
+import { QuestionnaireService } from '@/services';
 import { Questionnaire, Question, Answer } from '@/models';
-import QuestionnaireService from '@/services/QuestionnaireService';
-import Alert from '@/components/atoms/Alert/Alert';
-
-enum QuestionnairePropertyType {
-    Title,
-    Questions,
-    Answers,
-}
+import { QuestionnaireProperty } from '@/constants';
 
 function QuestionnaireView() {
     // #region Hooks
@@ -37,23 +31,22 @@ function QuestionnaireView() {
     // #endregion
 
     // #region Questionnaire Data Logic
-    function handleQuestionnaireChange(propertyType: QuestionnairePropertyType, value: any) {
+    const elementMutationLogicMap = {
+        [QuestionnaireProperty.TITLE]: (questionnaire: Questionnaire, value: string) => (questionnaire.title = value),
+        [QuestionnaireProperty.QUESTIONS]: (questionnaire: Questionnaire, value: Question[]) =>
+            (questionnaire.questions = value),
+        [QuestionnaireProperty.ANSWERS]: (questionnaire: Questionnaire, value: Answer[]) =>
+            (questionnaire.answers = value),
+    };
+
+    function handleQuestionnairePropertyChange(elementType: QuestionnaireProperty, elementValue: any) {
         if (!questionnaire) {
             return;
         }
 
-        // Using a switch to avoid hard typing of the property
-        switch (propertyType) {
-            case QuestionnairePropertyType.Title:
-                setQuestionnaire({ ...questionnaire, title: value });
-                break;
-            case QuestionnairePropertyType.Questions:
-                setQuestionnaire({ ...questionnaire, questions: value });
-                break;
-            case QuestionnairePropertyType.Answers:
-                setQuestionnaire({ ...questionnaire, answers: value });
-                break;
-        }
+        const newQuestionnaire = { ...questionnaire };
+        elementMutationLogicMap[elementType](newQuestionnaire, elementValue);
+        setQuestionnaire(newQuestionnaire);
     }
 
     async function saveQuestionnaire() {
@@ -85,14 +78,8 @@ function QuestionnaireView() {
                     <div className="columns">
                         <QuestionEditor
                             questionnaire={questionnaire}
-                            onQuestionnaireTitleModified={(title) =>
-                                handleQuestionnaireChange(QuestionnairePropertyType.Title, title)
-                            }
-                            onQuestionsModified={(questions) =>
-                                handleQuestionnaireChange(QuestionnairePropertyType.Questions, questions)
-                            }
-                            onAnswersModified={(answers) =>
-                                handleQuestionnaireChange(QuestionnairePropertyType.Answers, answers)
+                            onElementModified={(elementValue, elementType) =>
+                                handleQuestionnairePropertyChange(elementType, elementValue)
                             }
                             onQuestionEditorError={(message) => handleDataValidation(message, true)}
                         />
