@@ -1,5 +1,5 @@
 import './AppHeader.scss';
-import AppLogo from '@/assets/images/quantilope-logo.svg';
+import AppLogo from '@/assets/images/app-logo.png';
 
 function AppHeader() {
     return (

@@ -8,10 +8,11 @@
     animation: fadeInAnimation ease 1s;
 
     .app-logo {
-        min-width: 15rem;
+        width: 20rem;
     }
 
     .app-subtitle {
-        padding-top: 1rem;
+        font-weight: 100;
+        margin-top: 1rem;
     }
 }
