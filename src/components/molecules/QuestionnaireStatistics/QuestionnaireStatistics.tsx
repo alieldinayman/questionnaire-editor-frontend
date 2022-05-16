@@ -21,8 +21,8 @@ function QuestionnaireStatistics(props: QuestionnaireStatisticsProps) {
             <label className="stat-label">
                 Images Uploaded:&nbsp;
                 <strong>
-                    {props.questionnaire.questions.flatMap((question) => question.image ?? []).length +
-                        props.questionnaire.answers.flatMap((answer) => answer.image ?? []).length}
+                    {props.questionnaire.questions.filter((question) => question.image).length +
+                        props.questionnaire.answers.filter((answer) => answer.image).length}
                 </strong>
             </label>
             <label className="stat-label">
